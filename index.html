@@ -119,26 +119,31 @@ button:hover { background: #c5e84d; transform: translateY(-1px); }
   <div class="footer">Védett tartalom · 2025</div>
 </div>
 <script>
-async function sha1(message) {
+function sha1(message) {
   var msgBuffer = new TextEncoder().encode(message);
-  var hashBuffer = await crypto.subtle.digest("SHA-1", msgBuffer);
-  var hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(function(b) { return b.toString(16).padStart(2, "0"); }).join("");
+  return crypto.subtle.digest("SHA-1", msgBuffer).then(function(hashBuffer) {
+    var hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(function(b) { return b.toString(16).padStart(2, "0"); }).join("");
+  });
 }
 
-async function login(secret) {
-  var hash = await sha1(secret);
-  var url = hash + "/index.html";
-  try {
-    var response = await fetch(url, { method: "HEAD" });
-    if (response.ok) {
-      window.location = url;
-    } else {
+function login(secret) {
+  sha1(secret).then(function(hash) {
+    var url = hash + "/index.html";
+    var request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.onload = function() {
+      if (request.status >= 200 && request.status < 400) {
+        window.location = url;
+      } else {
+        showError();
+      }
+    };
+    request.onerror = function() {
       showError();
-    }
-  } catch(e) {
-    showError();
-  }
+    };
+    request.send();
+  });
 }
 
 function showError() {
