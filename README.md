@@ -1,1 +1,0 @@
-# gyogynoveny-piackutatas

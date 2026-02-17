@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gyógynövénykivonat Piackutatás — Magyarország 2025</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #0c0f0a;
+  --bg2: #141a10;
+  --card: #1a2214;
+  --card-hover: #1f2a18;
+  --border: #2a3a22;
+  --accent: #7bc74d;
+  --accent2: #4a9e2f;
+  --accent3: #c5e84d;
+  --gold: #d4a843;
+  --warm: #e8c87a;
+  --text: #e8eee4;
+  --text-dim: #8a9a80;
+  --text-muted: #5a6a52;
+  --danger: #e85454;
+  --info: #54a8e8;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+::selection { background: var(--accent); color: var(--bg); }
+
+/* ===== HERO ===== */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse 60% 50% at 50% 50%, rgba(123,199,77,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 20% 80%, rgba(74,158,47,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 30% 40% at 80% 20%, rgba(197,232,77,0.04) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  margin-bottom: 2rem;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards 0.2s;
+}
+
+.hero-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 2s ease infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.5); }
+}
+
+.hero h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 400;
+  line-height: 1.1;
+  max-width: 900px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards 0.4s;
+}
+
+.hero h1 em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.hero-subtitle {
+  margin-top: 1.5rem;
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  max-width: 600px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards 0.6s;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 3rem;
+  margin-top: 3rem;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards 0.8s;
+}
+
+.hero-stat {
+  text-align: center;
+}
+
+.hero-stat-value {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.5rem;
+  color: var(--accent3);
+}
+
+.hero-stat-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 0.25rem;
+}
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards 1s;
+}
+
+.scroll-line {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--accent), transparent);
+  animation: scrollPulse 2s ease infinite;
+}
+
+@keyframes scrollPulse {
+  0%, 100% { transform: scaleY(1); opacity: 1; }
+  50% { transform: scaleY(0.5); opacity: 0.3; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== NAV ===== */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(12, 15, 10, 0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.nav a {
+  flex-shrink: 0;
+  padding: 1rem 1.5rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.nav a:hover, .nav a.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ===== SECTIONS ===== */
+.section {
+  padding: 5rem 2rem;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.section-label {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 400;
+  margin-bottom: 0.75rem;
+}
+
+.section-desc {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  max-width: 700px;
+  margin-bottom: 3rem;
+}
+
+/* ===== CARDS & GRIDS ===== */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+
+@media (max-width: 900px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.4s ease;
+}
+
+.card:hover {
+  background: var(--card-hover);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.card-lg {
+  padding: 2rem;
+}
+
+.chart-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/10;
+}
+
+.chart-container-sq {
+  position: relative;
+  width: 100%;
+  max-width: 350px;
+  margin: 0 auto;
+  aspect-ratio: 1;
+}
+
+/* ===== KPI CARDS ===== */
+.kpi {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.kpi-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  margin: 0 auto 1rem;
+  background: rgba(123, 199, 77, 0.1);
+  border: 1px solid rgba(123, 199, 77, 0.2);
+}
+
+.kpi-value {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2rem;
+  color: var(--accent3);
+  line-height: 1;
+}
+
+.kpi-label {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-top: 0.5rem;
+}
+
+.kpi-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 100px;
+}
+
+.kpi-change.up { color: var(--accent); background: rgba(123,199,77,0.1); }
+.kpi-change.down { color: var(--danger); background: rgba(232,84,84,0.1); }
+
+/* ===== TOP HERBS TABLE ===== */
+.herb-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.herb-table th {
+  text-align: left;
+  padding: 0.8rem 1rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.herb-table td {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid rgba(42,58,34,0.5);
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.herb-table tr:hover td {
+  background: rgba(123,199,77,0.04);
+}
+
+.herb-table .rank {
+  width: 40px;
+  font-family: 'DM Serif Display', serif;
+  color: var(--accent);
+  font-size: 1.1rem;
+}
+
+.herb-tag {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.herb-tag.immune { background: rgba(84,168,232,0.15); color: #54a8e8; }
+.herb-tag.liver { background: rgba(212,168,67,0.15); color: #d4a843; }
+.herb-tag.stress { background: rgba(168,84,232,0.15); color: #a854e8; }
+.herb-tag.cognitive { background: rgba(232,168,84,0.15); color: #e8a854; }
+.herb-tag.digest { background: rgba(123,199,77,0.15); color: #7bc74d; }
+.herb-tag.cardio { background: rgba(232,84,84,0.15); color: #e85454; }
+.herb-tag.women { background: rgba(232,84,168,0.15); color: #e854a8; }
+.herb-tag.pain { background: rgba(232,200,122,0.15); color: #e8c87a; }
+.herb-tag.adaptogen { background: rgba(197,232,77,0.15); color: #c5e84d; }
+.herb-tag.mushroom { background: rgba(168,132,84,0.15); color: #a88454; }
+
+/* ===== REGULATION CARDS ===== */
+.reg-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+
+.status-dot.green { background: var(--accent); box-shadow: 0 0 8px rgba(123,199,77,0.5); }
+.status-dot.yellow { background: var(--gold); box-shadow: 0 0 8px rgba(212,168,67,0.5); }
+.status-dot.red { background: var(--danger); box-shadow: 0 0 8px rgba(232,84,84,0.5); }
+
+/* ===== TABS ===== */
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  padding: 0.5rem 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  background: transparent;
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.tab-btn:hover { border-color: var(--accent); color: var(--text); }
+.tab-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: fadeUp 0.4s ease; }
+
+/* ===== COMPETITORS ===== */
+.competitor {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  transition: background 0.3s;
+}
+
+.competitor:hover { background: rgba(123,199,77,0.04); }
+
+.competitor-logo {
+  width: 48px; height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+}
+
+.competitor-info { flex: 1; }
+.competitor-name { font-weight: 600; font-size: 0.95rem; }
+.competitor-desc { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.15rem; }
+.competitor-position { font-size: 0.7rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* ===== RISK METER ===== */
+.risk-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  overflow: hidden;
+  margin-top: 0.75rem;
+}
+
+.risk-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1.5s ease;
+}
+
+.risk-fill.low { width: 25%; background: var(--accent); }
+.risk-fill.medium { width: 55%; background: var(--gold); }
+.risk-fill.high { width: 85%; background: var(--danger); }
+
+/* ===== TIMELINE ===== */
+.timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--accent), var(--border));
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 2rem;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -2rem;
+  top: 0.5rem;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+  transform: translateX(-4px);
+}
+
+.timeline-date {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.timeline-text {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  margin-top: 0.25rem;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  text-align: center;
+  padding: 3rem 2rem;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+/* ===== DIVIDER ===== */
+.divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--border), transparent);
+  margin: 0 auto;
+  max-width: 1300px;
+}
+
+/* ===== COUNTER ANIMATION ===== */
+.count-up {
+  display: inline-block;
+}
+
+/* ===== TOOLTIP ===== */
+.info-tip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 1px solid var(--text-muted);
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  cursor: help;
+  margin-left: 0.25rem;
+  position: relative;
+}
+
+.info-tip:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text);
+  color: var(--bg);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* ===== PROGRESS BAR ===== */
+.bar-chart-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.bar-label {
+  width: 140px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.bar-track {
+  flex: 1;
+  height: 24px;
+  background: rgba(42,58,34,0.5);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1.5s ease;
+  display: flex;
+  align-items: center;
+  padding-left: 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--bg);
+}
+
+.bar-value {
+  font-size: 0.8rem;
+  font-weight: 600;
+  width: 50px;
+  flex-shrink: 0;
+}
+
+/* ===== NOVEL FOOD TABLE ===== */
+.nf-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 700px) { .nf-grid { grid-template-columns: 1fr; } }
+
+.nf-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+
+.nf-item.ok { border-left: 3px solid var(--accent); }
+.nf-item.novel { border-left: 3px solid var(--danger); }
+
+.nf-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.nf-badge.ok { background: rgba(123,199,77,0.15); color: var(--accent); }
+.nf-badge.novel { background: rgba(232,84,84,0.15); color: var(--danger); }
+
+/* Smooth reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+</style>
+</head>
+<body>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <span class="hero-badge">Piackutatás 2025</span>
+  <h1>A Magyar <em>Gyógynövény</em> Piac Feltérképezése</h1>
+  <p class="hero-subtitle">Átfogó kutatás a gyógynövénykivonat-alapú készítmények piacáról, szabályozásáról, fogyasztói szokásairól és üzleti lehetőségeiről — Budapest fókusszal.</p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-value count-up" data-target="35">0</div>
+      <div class="hero-stat-label">Mrd Ft piacméret</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value count-up" data-target="12">0</div>
+      <div class="hero-stat-label">Mrd Ft Budapest</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value"><span class="count-up" data-target="7">0</span>%</div>
+      <div class="hero-stat-label">Éves növekedés</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value count-up" data-target="250">0</div>
+      <div class="hero-stat-label">Ezer fő Budapest</div>
+    </div>
+  </div>
+  <div class="scroll-indicator">
+    <span>Görgess</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ===== NAV ===== -->
+<nav class="nav" id="mainNav">
+  <a href="#piac">Piacméret</a>
+  <a href="#szegmensek">Szegmensek</a>
+  <a href="#fogyasztok">Fogyasztók</a>
+  <a href="#gyogynovenyek">TOP Gyógynövények</a>
+  <a href="#csatornak">Csatornák</a>
+  <a href="#versenytarsak">Versenytársak</a>
+  <a href="#szabalyozas">Szabályozás</a>
+  <a href="#b2b">B2B</a>
+</nav>
+
+<!-- ===== 1. PIACMÉRET ===== -->
+<section class="section reveal" id="piac">
+  <span class="section-label">01</span>
+  <h2 class="section-title">Piacméret & Növekedés</h2>
+  <p class="section-desc">A magyar gyógynövényes étrend-kiegészítő piac a teljes ~150 milliárd Ft-os supplement piac 20–30%-át teszi ki, és az átlagosnál gyorsabban növekszik.</p>
+
+  <div class="grid-4" style="margin-bottom: 2rem;">
+    <div class="card kpi">
+      <div class="kpi-icon">🌿</div>
+      <div class="kpi-value">25–40</div>
+      <div class="kpi-label">Mrd Ft / év<br>Gyógynövényes szegmens</div>
+      <div class="kpi-change up">▲ 5–8% CAGR</div>
+    </div>
+    <div class="card kpi">
+      <div class="kpi-icon">🏙️</div>
+      <div class="kpi-value">8–14</div>
+      <div class="kpi-label">Mrd Ft / év<br>Budapest részpiac</div>
+      <div class="kpi-change up">▲ 25–35% országos</div>
+    </div>
+    <div class="card kpi">
+      <div class="kpi-icon">🍄</div>
+      <div class="kpi-value">10–15%</div>
+      <div class="kpi-label">CAGR<br>Funkcionális gombák</div>
+      <div class="kpi-change up">▲ Leggyorsabb szegmens</div>
+    </div>
+    <div class="card kpi">
+      <div class="kpi-icon">📊</div>
+      <div class="kpi-value">100–200</div>
+      <div class="kpi-label">Mrd Ft / év<br>Teljes étrend-kieg. piac</div>
+      <div class="kpi-change up">▲ 4–6% CAGR</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card card-lg">
+      <h3 style="font-family: 'DM Serif Display', serif; margin-bottom: 1rem;">Piacméret alakulása (Mrd Ft)</h3>
+      <div class="chart-container">
+        <canvas id="marketSizeChart"></canvas>
+      </div>
+    </div>
+    <div class="card card-lg">
+      <h3 style="font-family: 'DM Serif Display', serif; margin-bottom: 1rem;">Budapest vs. Vidék megoszlás</h3>
+      <div class="chart-container-sq">
+        <canvas id="bpShareChart"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== 2. SZEGMENSEK ===== -->
+<section class="section reveal" id="szegmensek">
+  <span class="section-label">02</span>
+  <h2 class="section-title">Piaci Szegmensek</h2>
+  <p class="section-desc">A hagyományos gyógynövényes kapszulák/tabletták adják a forgalom felét, de az adaptogének és funkcionális gombák a leggyorsabban növekvő kategóriák.</p>
+
+  <div class="grid-2">
+    <div class="card card-lg">
+      <h3 style="font-family: 'DM Serif Display', serif; margin-bottom: 1.5rem;">Szegmensek forgalom szerint</h3>
+      <div class="chart-container">
+        <canvas id="segmentChart"></canvas>
+      </div>
+    </div>
+    <div class="card card-lg">
+      <h3 style="font-family: 'DM Serif Display', serif; margin-bottom: 1.5rem;">Növekedési ütem (CAGR 2024–2030)</h3>
+      <div style="margin-top: 1rem;">
+        <div class="bar-chart-row">
+          <div class="bar-label">Funk. gombák</div>
+          <div class="bar-track"><div class="bar-fill" style="width:0%; background: linear-gradient(90deg, var(--accent), var(--accent3));" data-width="83%">12.5%</div></div>
+        </div>
+        <div class="bar-chart-row">
+          <div class="bar-label">Adaptogének</div>
+          <div class="bar-track"><div class="bar-fill" style="width:0%; background: linear-gradient(90deg, var(--accent2), var(--accent));" data-width="57%">8.5%</div></div>
+        </div>
+        <div class="bar-chart-row">
+          <div class="bar-label">Tinktúrák</div>
+          <div class="bar-track"><div class="bar-fill" style="width:0%; background: linear-gradient(90deg, #4a7a30, var(--accent2));" data-width="33%">5%</div></div>
+        </div>
+        <div class="bar-chart-row">
+          <div class="bar-label">Kapszulák</div>
+          <div class="bar-track"><div class="bar-fill" style="width:0%; background: linear-gradient(90deg, #3a6a24, #4a7a30);" data-width="33%">5%</div></div>
+        </div>
+        <div class="bar-chart-row">
+          <div class="bar-label">Teakivonatok</div>
+          <div class="bar-track"><div class="bar-fill" style="width:0%; background: linear-gradient(90deg, #2a5a18, #3a6a24);" data-width="27%">4%</div></div>
+        </div>
+      </div>
+
+      <div style="margin-top: 2rem; padding: 1rem; border-radius: 8px; background: rgba(123,199,77,0.06); border: 1px solid rgba(123,199,77,0.15);">
+        <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 0.5rem;">💡 Stratégiai megjegyzés</div>
+        <div style="font-size: 0.85rem; color: var(--text-dim);">A funkcionális gombák és adaptogének a leginkább „automatakész" termékek — fiatal célcsoport, impulzusvásárlási potenciál, magas árrés.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== 3. FOGYASZTÓK ===== -->
+<section class="section reveal" id="fogyasztok">
+  <span class="section-label">03</span>
+  <h2 class="section-title">Fogyasztói Profil</h2>
+  <p class="section-desc">~900 000–1 200 000 magyar fogyasztó, ebből 200 000–300 000 Budapesten. Három generáció, három eltérő mintázat.</p>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="age">Életkor</button>
+    <button class="tab-btn" data-tab="gender">Nemek</button>
+    <button class="tab-btn" data-tab="frequency">Gyakoriság</button>
+    <button class="tab-btn" data-tab="spending">Költés</button>
+  </div>
+
+  <!-- AGE TAB -->
+  <div class="tab-content active" id="tab-age">
+    <div class="grid-3">
+      <div class="card card-lg" style="border-top: 3px solid var(--accent3);">
+        <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent3); margin-bottom: 0.5rem;">18–40 év</div>
+        <div style="font-family: 'DM Serif Display', serif; font-size: 1.4rem;">Digitális Tudatosak</div>
+        <div style="color: var(--text-dim); font-size: 0.85rem; margin: 1rem 0;">
+          Adaptogének, stresszoldás, természetes energia. Online vásárlás dominál, Instagram/TikTok hatás erős.
+        </div>
+        <div style="display: flex; justify-content: space-between; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.8rem;">
+          <div><span style="color: var(--text-muted);">Havi költés</span><br><strong>5–10e Ft</strong></div>
+          <div><span style="color: var(--text-muted);">Csatorna</span><br><strong>Online 65%</strong></div>
+        </div>
+      </div>
+      <div class="card card-lg" style="border-top: 3px solid var(--accent);">
+        <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 0.5rem;">40–55 év</div>
+        <div style="font-family: 'DM Serif Display', serif; font-size: 1.4rem;">Tudatos Megelőzők</div>
+        <div style="color: var(--text-dim); font-size: 0.85rem; margin: 1rem 0;">
+          Ízületi, kardiovaszkuláris, májvédő készítmények. Patika + online vegyes csatorna. Legmagasabb költők.
+        </div>
+        <div style="display: flex; justify-content: space-between; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.8rem;">
+          <div><span style="color: var(--text-muted);">Havi költés</span><br><strong>10–20e Ft</strong></div>
+          <div><span style="color: var(--text-muted);">Csatorna</span><br><strong>Vegyes</strong></div>
+        </div>
+      </div>
+      <div class="card card-lg" style="border-top: 3px solid var(--gold);">
+        <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 0.5rem;">55+ év</div>
+        <div style="font-family: 'DM Serif Display', serif; font-size: 1.4rem;">Hagyományőrzők</div>
+        <div style="color: var(--text-dim); font-size: 0.85rem; margin: 1rem 0;">
+          Kamilla, hárs, galagonya, ginkgo. Gyógyszertári vásárlás dominál, orvosi/gyógyszerészi ajánlás a fő motivátor.
+        </div>
+        <div style="display: flex; justify-content: space-between; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.8rem;">
+          <div><span style="color: var(--text-muted);">Havi költés</span><br><strong>5–10e Ft</strong></div>
+          <div><span style="color: var(--text-muted);">Csatorna</span><br><strong>Patika 80%</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GENDER TAB -->
+  <div class="tab-content" id="tab-gender">
+    <div class="grid-2">
+      <div class="card card-lg">
+        <h3 style="font-family: 'DM Serif Display', serif; margin-bottom: 1rem;">Nemek megoszlása</h3>
+        <div class="chart-container-sq">
+          <canvas id="genderChart"></canvas>
+        </div>
+      </div>
+      <div class="card card-lg">
+        <h3 style="font-family: 'DM Serif Display', serif; margin-bottom: 1.5rem;">Preferenciák nemek szerint</h3>
+        <div style="margin-bottom: 1.5rem;">
+          <div style="font-size: 0.75rem; font-weight: 700; color: #e854a8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">👩 Nők (64%)</div>
+          <div style="font-size: 0.85rem; color: var(--text-dim);">Menopauza-támogató (zsálya, vörös here), stressz/szorongás (valeriána, levendula), szépségápolás, PMS (barátcserje)</div>
+        </div>
+        <div>
+          <div style="font-size: 0.75rem; font-weight: 700; color: var(--info); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">👨 Férfiak (36%)</div>
+          <div style="font-size: 0.85rem; color: var(--text-dim);">Teljesítményfokozás (ginzeng, maca), prosztata (szabalpálma), kardiovaszkuláris (galagonya, fokhagyma), energia</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FREQUENCY TAB -->
+  <div class="tab-content" id="tab-frequency">
+    <div class="grid-2">
+      <div class="card card-lg">
+        <h3 style="font-family: 'DM Serif Display', serif; margin-bottom: 1rem;">Fogyasztási gyakoriság</h3>
+        <div class="chart-container-sq">
+          <canvas id="frequencyChart"></canvas>
+        </div>
+      </div>
+      <div class="card card-lg">
+        <h3 style="font-family: 'DM Serif Display', serif; margin-bottom: 1.5rem;">Szezonalitás</h3>
+        <div class="chart-container">
+          <canvas id="seasonChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPENDING TAB -->
+  <div class="tab-content" id="tab-spending">
+    <div class="card card-lg">
+      <h3 style="font-family: 'DM Serif Display', serif; margin-bottom: 1.5rem;">Havi költés megoszlása (Ft)</h3>
+      <div class="chart-container">
+        <canvas id="spendingChart"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== 4. TOP GYÓGYNÖVÉNYEK ===== -->
+<section class="section reveal" id="gyogynovenyek">
+  <span class="section-label">04</span>
+  <h2 class="section-title">TOP 20 Gyógynövény</h2>
+  <p class="section-desc">A legkelendőbb gyógynövénykivonatok indikáció szerinti csoportosításban.</p>
+
+  <div class="card card-lg" style="overflow-x: auto;">
+    <table class="herb-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Gyógynövény</th>
+          <th>Kategória</th>
+          <th>Fő indikáció</th>
+          <th>Trend</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="rank">1</td><td><strong>Echinacea</strong></td><td><span class="herb-tag immune">Immun</span></td><td>Immunerősítés, megelőzés</td><td>⭐ Stabil piacvezető</td></tr>
+        <tr><td class="rank">2</td><td><strong>Máriatövis</strong></td><td><span class="herb-tag liver">Máj</span></td><td>Májvédelem, méregtelenítés</td><td>⭐ #1 májvédő</td></tr>
+        <tr><td class="rank">3</td><td><strong>Ginkgo biloba</strong></td><td><span class="herb-tag cognitive">Kognitív</span></td><td>Memória, keringés</td><td>📈 Stabil kereslet</td></tr>
+        <tr><td class="rank">4</td><td><strong>Valeriána</strong></td><td><span class="herb-tag stress">Stressz</span></td><td>Alvássegítő, nyugtató</td><td>📈 Növekvő</td></tr>
+        <tr><td class="rank">5</td><td><strong>Kamilla</strong></td><td><span class="herb-tag digest">Emésztés</span></td><td>Emésztéstámogatás, gyulladás</td><td>⭐ Tradicionális #1</td></tr>
+        <tr><td class="rank">6</td><td><strong>Csipkebogyó</strong></td><td><span class="herb-tag immune">Immun</span></td><td>C-vitamin forrás</td><td>📈 Stabil</td></tr>
+        <tr><td class="rank">7</td><td><strong>Bodza</strong></td><td><span class="herb-tag immune">Immun</span></td><td>Megfázás, immunerősítés</td><td>📈 Szezonálisan erős</td></tr>
+        <tr><td class="rank">8</td><td><strong>Kurkuma</strong></td><td><span class="herb-tag pain">Gyulladás</span></td><td>Gyulladáscsökkentés, ízületek</td><td>🚀 Gyorsan növekvő</td></tr>
+        <tr><td class="rank">9</td><td><strong>Ashwagandha</strong></td><td><span class="herb-tag adaptogen">Adaptogén</span></td><td>Stresszoldás, energia</td><td>🚀 Boom (szab. kockázat!)</td></tr>
+        <tr><td class="rank">10</td><td><strong>Galagonya</strong></td><td><span class="herb-tag cardio">Szív</span></td><td>Szív- és keringéstámogatás</td><td>📈 Stabil</td></tr>
+        <tr><td class="rank">11</td><td><strong>Citromfű</strong></td><td><span class="herb-tag stress">Stressz</span></td><td>Nyugtató, emésztéstámogatás</td><td>📈 Növekvő</td></tr>
+        <tr><td class="rank">12</td><td><strong>Articsóka</strong></td><td><span class="herb-tag liver">Máj</span></td><td>Máj, emésztés, epetermelés</td><td>📈 Stabil</td></tr>
+        <tr><td class="rank">13</td><td><strong>Homoktövis</strong></td><td><span class="herb-tag immune">Immun</span></td><td>C-vitamin, immunerősítés</td><td>📈 Magyar hagyomány</td></tr>
+        <tr><td class="rank">14</td><td><strong>Gyömbér</strong></td><td><span class="herb-tag digest">Emésztés</span></td><td>Émelygés, emésztés</td><td>🚀 Növekvő trend</td></tr>
+        <tr><td class="rank">15</td><td><strong>Borsmenta</strong></td><td><span class="herb-tag digest">Emésztés</span></td><td>Görcsoldó, emésztés</td><td>📈 Stabil</td></tr>
+        <tr><td class="rank">16</td><td><strong>Fokhagyma</strong></td><td><span class="herb-tag cardio">Szív</span></td><td>Vérnyomás, koleszterin</td><td>📈 Stabil</td></tr>
+        <tr><td class="rank">17</td><td><strong>Golgotavirág</strong></td><td><span class="herb-tag stress">Stressz</span></td><td>Alvássegítő</td><td>📈 Növekvő</td></tr>
+        <tr><td class="rank">18</td><td><strong>Szabalpálma</strong></td><td><span class="herb-tag pain">Férfi</span></td><td>Prosztatatámogatás</td><td>📈 Stabil rétegpiac</td></tr>
+        <tr><td class="rank">19</td><td><strong>Rhodiola</strong></td><td><span class="herb-tag adaptogen">Adaptogén</span></td><td>Fáradtság, teljesítmény</td><td>🚀 Gyorsan növekvő</td></tr>
+        <tr><td class="rank">20</td><td><strong>Reishi / Lion's Mane</strong></td><td><span class="herb-tag mushroom">Gomba</span></td><td>Immun, kognitív, adaptáció</td><td>🚀 Új hullám</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== 5. CSATORNÁK ===== -->
+<section class="section reveal" id="csatornak">
+  <span class="section-label">05</span>
+  <h2 class="section-title">Értékesítési Csatornák</h2>
+  <p class="section-desc">A gyógyszertárak dominálnak, de az online csatorna a leggyorsabban növekvő szegmens — és éppen itt van az automata-lehetőség is.</p>
+
+  <div class="grid-2">
+    <div class="card card-lg">
+      <h3 style="font-family: 'DM Serif Display', serif; margin-bottom: 1rem;">Csatorna piaci részesedés</h3>
+      <div class="chart-container">
+        <canvas id="channelChart"></canvas>
+      </div>
+    </div>
+    <div class="card card-lg">
+      <h3 style="font-family: 'DM Serif Display', serif; margin-bottom: 1.5rem;">Árkategóriák (Ft / termék)</h3>
+      <div style="margin-bottom: 1.5rem; padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border);">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em;">Alap</div>
+            <div style="font-family: 'DM Serif Display', serif; font-size: 1.3rem; color: var(--accent);">1 500 – 3 500 Ft</div>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-dim);">Dr. Chen, Interherb, Bionit</div>
+        </div>
+      </div>
+      <div style="margin-bottom: 1.5rem; padding: 1.25rem; border-radius: 8px; border: 1px solid var(--accent2); background: rgba(74,158,47,0.05);">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-size: 0.7rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em;">Közép ★ Fő célszegmens</div>
+            <div style="font-family: 'DM Serif Display', serif; font-size: 1.3rem; color: var(--accent3);">3 500 – 7 000 Ft</div>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-dim);">BioCo, Naturland, JutaVit</div>
+        </div>
+      </div>
+      <div style="padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border);">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-size: 0.7rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em;">Prémium</div>
+            <div style="font-family: 'DM Serif Display', serif; font-size: 1.3rem; color: var(--gold);">7 000 – 15 000+ Ft</div>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-dim);">Solgar, GAL, NOW Foods</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== 6. VERSENYTÁRSAK ===== -->
+<section class="section reveal" id="versenytarsak">
+  <span class="section-label">06</span>
+  <h2 class="section-title">Versenytárs Térkép</h2>
+  <p class="section-desc">Az öt hazai piacvezető és a nemzetközi kihívók.</p>
+
+  <div class="grid-2">
+    <div class="card card-lg">
+      <h3 style="font-family: 'DM Serif Display', serif; margin-bottom: 1.5rem;">🇭🇺 Magyar piacvezetők</h3>
+      <div class="competitor">
+        <div class="competitor-logo" style="color: #4a8a2a;">H</div>
+        <div class="competitor-info">
+          <div class="competitor-name">Herbária Zrt.</div>
+          <div class="competitor-desc">1949 óta, saját franchise-hálózat, gyártás + nagykereskedelem</div>
+        </div>
+        <div class="competitor-position">Piacvezető</div>
+      </div>
+      <div class="competitor">
+        <div class="competitor-logo" style="color: var(--accent);">B</div>
+        <div class="competitor-info">
+          <div class="competitor-name">BioCo Magyarország</div>
+          <div class="competitor-desc">25+ év, ISO/GMP, 140+ termék, Superbrands® díjas</div>
+        </div>
+        <div class="competitor-position">Erős #2</div>
+      </div>
+      <div class="competitor">
+        <div class="competitor-logo" style="color: var(--gold);">N</div>
+        <div class="competitor-info">
+          <div class="competitor-name">Naturland</div>
+          <div class="competitor-desc">380 termék, gyógyszergyártási engedély, saját nagyker</div>
+        </div>
+        <div class="competitor-position">Hibrid modell</div>
+      </div>
+      <div class="competitor">
+        <div class="competitor-logo" style="color: var(--danger);">DC</div>
+        <div class="competitor-info">
+          <div class="competitor-name">Dr. Chen Patika</div>
+          <div class="competitor-desc">300+ termék, széleskörű disztribúció, budget szegmens</div>
+        </div>
+        <div class="competitor-position">Volumen #1</div>
+      </div>
+      <div class="competitor">
+        <div class="competitor-logo" style="color: var(--info);">HH</div>
+        <div class="competitor-info">
+          <div class="competitor-name">HerbaHáz</div>
+          <div class="competitor-desc">9 szupermarket-méretű szaküzlet, kisker + B2B nagyker</div>
+        </div>
+        <div class="competitor-position">Omnichannel</div>
+      </div>
+    </div>
+
+    <div class="card card-lg">
+      <h3 style="font-family: 'DM Serif Display', serif; margin-bottom: 1.5rem;">🌍 Nemzetközi kihívók</h3>
+      <div class="competitor">
+        <div class="competitor-logo" style="color: #e87a20;">NF</div>
+        <div class="competitor-info">
+          <div class="competitor-name">NOW Foods</div>
+          <div class="competitor-desc">1199+ termék az Árukeresőn, dedikált magyar webshop</div>
+        </div>
+        <div class="competitor-position">Import #1</div>
+      </div>
+      <div class="competitor">
+        <div class="competitor-logo" style="color: #20a0e8;">GB</div>
+        <div class="competitor-info">
+          <div class="competitor-name">GymBeam (SK)</div>
+          <div class="competitor-desc">585+ termék, erős online jelenlét, fiatal célcsoport</div>
+        </div>
+        <div class="competitor-position">Online erős</div>
+      </div>
+      <div class="competitor">
+        <div class="competitor-logo" style="color: #d4a843;">S</div>
+        <div class="competitor-info">
+          <div class="competitor-name">Solgar</div>
+          <div class="competitor-desc">Prémium pozícionálás, 7000+ Ft árkategória</div>
+        </div>
+        <div class="competitor-position">Prémium</div>
+      </div>
+      <div class="competitor">
+        <div class="competitor-logo" style="color: #54e8a8;">W</div>
+        <div class="competitor-info">
+          <div class="competitor-name">Walmark (CZ)</div>
+          <div class="competitor-desc">Patikai csatorna, évi 10% növekedés Magyarországon</div>
+        </div>
+        <div class="competitor-position">Patikai fókusz</div>
+      </div>
+
+      <div style="margin-top: 1.5rem; padding: 1rem; border-radius: 8px; background: rgba(123,199,77,0.06); border: 1px solid rgba(123,199,77,0.15);">
+        <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 0.5rem;">🎯 Piaci rés</div>
+        <div style="font-size: 0.85rem; color: var(--text-dim);">Automatás étrend-kiegészítő értékesítés <strong>gyakorlatilag nem létezik</strong> Magyarországon — egyetlen versenytárs sem működtet ilyen csatornát.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== 7. SZABÁLYOZÁS ===== -->
+<section class="section reveal" id="szabalyozas">
+  <span class="section-label">07</span>
+  <h2 class="section-title">Szabályozási Környezet</h2>
+  <p class="section-desc">Az étrend-kiegészítők jelenleg szabadon forgalmazhatók, de a szabályozási környezet változóban van.</p>
+
+  <div class="grid-3" style="margin-bottom: 2rem;">
+    <div class="card card-lg">
+      <div class="reg-status"><div class="status-dot green"></div><span style="font-size: 0.8rem; font-weight: 600;">Alacsony kockázat</span></div>
+      <div style="font-family: 'DM Serif Display', serif; font-size: 1.1rem; margin-bottom: 0.5rem;">Automatás értékesítés</div>
+      <div style="font-size: 0.85rem; color: var(--text-dim);">Jelenleg nincs kifejezett tilalom. Élelmiszer-automatára vonatkozó szabályok alkalmazandók (NAV, AFE, HACCP).</div>
+      <div class="risk-bar"><div class="risk-fill low"></div></div>
+    </div>
+    <div class="card card-lg">
+      <div class="reg-status"><div class="status-dot yellow"></div><span style="font-size: 0.8rem; font-weight: 600;">Közepes kockázat</span></div>
+      <div style="font-family: 'DM Serif Display', serif; font-size: 1.1rem; margin-bottom: 0.5rem;">Patikához kötés</div>
+      <div style="font-size: 0.85rem; color: var(--text-dim);">2023-as törvénymódosítás felhatalmazást ad végrehajtási rendeletre. Mono-kivonatok, magas dózisú termékek veszélyeztetettek.</div>
+      <div class="risk-bar"><div class="risk-fill medium"></div></div>
+    </div>
+    <div class="card card-lg">
+      <div class="reg-status"><div class="status-dot red"></div><span style="font-size: 0.8rem; font-weight: 600;">Magas kockázat</span></div>
+      <div style="font-family: 'DM Serif Display', serif; font-size: 1.1rem; margin-bottom: 0.5rem;">Ashwagandha tiltás</div>
+      <div style="font-size: 0.85rem; color: var(--text-dim);">EU-szintű eljárás folyamatban. Dánia, Franciaország már betiltotta. Magyarországon forgalmazható, de bármikor változhat.</div>
+      <div class="risk-bar"><div class="risk-fill high"></div></div>
+    </div>
+  </div>
+
+  <div class="card card-lg">
+    <h3 style="font-family: 'DM Serif Display', serif; margin-bottom: 1.5rem;">Funkcionális Gombák — Novel Food Státusz</h3>
+    <div class="nf-grid">
+      <div class="nf-item ok">
+        <div>🍄 <strong>Reishi</strong> (termőtest)</div>
+        <div class="nf-badge ok">✓ Szabad</div>
+      </div>
+      <div class="nf-item ok">
+        <div>🦁 <strong>Lion's Mane</strong> (termőtest)</div>
+        <div class="nf-badge ok">✓ Szabad</div>
+      </div>
+      <div class="nf-item ok">
+        <div>🪨 <strong>Chaga</strong> (por/kivonat)</div>
+        <div class="nf-badge ok">✓ Szabad</div>
+      </div>
+      <div class="nf-item ok">
+        <div>🐛 <strong>Cordyceps sinensis</strong></div>
+        <div class="nf-badge ok">✓ Szabad</div>
+      </div>
+      <div class="nf-item novel">
+        <div>⚠️ <strong>Cordyceps militaris</strong></div>
+        <div class="nf-badge novel">✗ Novel Food</div>
+      </div>
+      <div class="nf-item novel">
+        <div>⚠️ <strong>Micélium-alapú porok</strong></div>
+        <div class="nf-badge novel">✗ Novel Food</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== 8. B2B ===== -->
+<section class="section reveal" id="b2b">
+  <span class="section-label">08</span>
+  <h2 class="section-title">B2B & Árrések</h2>
+  <p class="section-desc">A beszállítói infrastruktúra kész — a gyógynövényes szegmens kedvező árrés-struktúrát kínál.</p>
+
+  <div class="grid-2" style="margin-bottom: 2rem;">
+    <div class="card card-lg">
+      <h3 style="font-family: 'DM Serif Display', serif; margin-bottom: 1.5rem;">Árrés-struktúra</h3>
+      <div class="chart-container">
+        <canvas id="marginChart"></canvas>
+      </div>
+    </div>
+    <div class="card card-lg">
+      <h3 style="font-family: 'DM Serif Display', serif; margin-bottom: 1.5rem;">Fő beszállítók</h3>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-date">Gyógyszer-nagyker</div>
+          <div class="timeline-text"><strong>Hungaropharma</strong> — ~40% piaci részesedés, 2600+ vevő, 18 000 termék<br><strong>Bellis Egészségtár</strong> — 9000+ termék, specializált étrend-kieg. nagyker</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Gyógynövény-nagyker</div>
+          <div class="timeline-text"><strong>Fitocentrum</strong> — Törökbálint, induló készlet-szolgáltatás<br><strong>VitaminNagyker</strong> — 390 000+ rendelés/év, B2B/B2C</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Szerződéses gyártók</div>
+          <div class="timeline-text"><strong>Euro Food Technology</strong> — Private label, ISO/GMP<br><strong>Biropharma</strong> — Kivonatolás, tinktúra, spray-szárítás</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div style="font-family: 'DM Serif Display', serif; font-size: 1.2rem; margin-bottom: 0.5rem;">Piackutatás — Gyógynövénykivonat-alapú Készítmények</div>
+  <div>Magyarország, Budapest fókusz · 2025 · Üzleti terv megalapozása</div>
+</footer>
+
+<script>
+// ===== CHART.JS CONFIG =====
+Chart.defaults.color = '#8a9a80';
+Chart.defaults.borderColor = 'rgba(42,58,34,0.5)';
+Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+
+const accent = '#7bc74d';
+const accent2 = '#4a9e2f';
+const accent3 = '#c5e84d';
+const gold = '#d4a843';
+const info = '#54a8e8';
+const danger = '#e85454';
+
+// 1. MARKET SIZE CHART
+new Chart(document.getElementById('marketSizeChart'), {
+  type: 'bar',
+  data: {
+    labels: ['2020', '2021', '2022', '2023', '2024', '2025E', '2026E', '2028E', '2030E'],
+    datasets: [{
+      label: 'Gyógynövényes szegmens (Mrd Ft)',
+      data: [22, 28, 27, 30, 33, 35, 38, 43, 50],
+      backgroundColor: ctx => {
+        const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 300);
+        g.addColorStop(0, 'rgba(123,199,77,0.8)');
+        g.addColorStop(1, 'rgba(74,158,47,0.3)');
+        return g;
+      },
+      borderRadius: 6,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.raw + ' Mrd Ft' } }
+    },
+    scales: {
+      y: { beginAtZero: true, grid: { color: 'rgba(42,58,34,0.3)' }, ticks: { callback: v => v + ' Mrd' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// 2. BP SHARE CHART
+new Chart(document.getElementById('bpShareChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Budapest (30%)', 'Vidék (70%)'],
+    datasets: [{
+      data: [30, 70],
+      backgroundColor: [accent3, 'rgba(42,58,34,0.6)'],
+      borderWidth: 0,
+      cutout: '70%',
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {
+      legend: { position: 'bottom', labels: { padding: 20, usePointStyle: true } },
+    }
+  }
+});
+
+// 3. SEGMENT CHART
+new Chart(document.getElementById('segmentChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Kapszulák / Tabletták', 'Gyógyteák', 'Tinktúrák / Cseppek', 'Adaptogének', 'Funk. gombák'],
+    datasets: [{
+      data: [45, 20, 13, 15, 7],
+      backgroundColor: [accent, accent2, gold, accent3, info],
+      borderWidth: 0,
+      cutout: '55%',
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true, font: { size: 11 } } },
+      tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.raw + '%' } }
+    }
+  }
+});
+
+// 4. GENDER CHART
+new Chart(document.getElementById('genderChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Nő (64%)', 'Férfi (36%)'],
+    datasets: [{
+      data: [64, 36],
+      backgroundColor: ['#e854a8', info],
+      borderWidth: 0,
+      cutout: '70%',
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { position: 'bottom', labels: { padding: 20, usePointStyle: true } } }
+  }
+});
+
+// 5. FREQUENCY CHART
+new Chart(document.getElementById('frequencyChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Napi (18%)', 'Szezonális (42%)', 'Alkalmi (40%)'],
+    datasets: [{
+      data: [18, 42, 40],
+      backgroundColor: [accent, gold, 'rgba(42,58,34,0.6)'],
+      borderWidth: 0,
+      cutout: '65%',
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { position: 'bottom', labels: { padding: 20, usePointStyle: true } } }
+  }
+});
+
+// 6. SEASON CHART
+new Chart(document.getElementById('seasonChart'), {
+  type: 'line',
+  data: {
+    labels: ['Jan', 'Feb', 'Már', 'Ápr', 'Máj', 'Jún', 'Júl', 'Aug', 'Szep', 'Okt', 'Nov', 'Dec'],
+    datasets: [
+      {
+        label: 'Immunerősítők',
+        data: [90, 75, 55, 35, 25, 20, 20, 25, 50, 80, 95, 100],
+        borderColor: info,
+        backgroundColor: 'rgba(84,168,232,0.1)',
+        fill: true,
+        tension: 0.4,
+      },
+      {
+        label: 'Méregtelenítők',
+        data: [30, 40, 85, 100, 60, 35, 25, 25, 50, 40, 30, 25],
+        borderColor: gold,
+        backgroundColor: 'rgba(212,168,67,0.1)',
+        fill: true,
+        tension: 0.4,
+      },
+      {
+        label: 'Stressz/Alvás',
+        data: [60, 55, 50, 50, 55, 50, 45, 50, 65, 70, 75, 70],
+        borderColor: '#a854e8',
+        backgroundColor: 'rgba(168,84,232,0.1)',
+        fill: true,
+        tension: 0.4,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true, font: { size: 11 } } } },
+    scales: {
+      y: { beginAtZero: true, grid: { color: 'rgba(42,58,34,0.3)' }, ticks: { callback: v => v + '%' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// 7. SPENDING CHART
+new Chart(document.getElementById('spendingChart'), {
+  type: 'bar',
+  data: {
+    labels: ['< 3 000 Ft', '3–5 000 Ft', '5–10 000 Ft', '10–15 000 Ft', '15–20 000 Ft', '20 000+ Ft'],
+    datasets: [{
+      label: 'Fogyasztók aránya',
+      data: [12, 20, 35, 18, 10, 5],
+      backgroundColor: [
+        'rgba(42,58,34,0.6)', 'rgba(74,158,47,0.5)', accent,
+        accent3, gold, 'rgba(232,168,84,0.7)'
+      ],
+      borderRadius: 6,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    indexAxis: 'y',
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.raw + '% a fogyasztókból' } }
+    },
+    scales: {
+      x: { beginAtZero: true, grid: { color: 'rgba(42,58,34,0.3)' }, ticks: { callback: v => v + '%' } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+
+// 8. CHANNEL CHART
+new Chart(document.getElementById('channelChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Gyógyszertár', 'Online (hazai)', 'Online (import)', 'Bio/szaküzlet', 'Drogéria', 'Egyéb'],
+    datasets: [{
+      label: 'Piaci részesedés',
+      data: [55, 18, 7, 10, 6, 4],
+      backgroundColor: [accent, accent3, info, gold, '#a854e8', 'rgba(42,58,34,0.6)'],
+      borderRadius: 6,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.raw + '% piaci részesedés' } }
+    },
+    scales: {
+      y: { beginAtZero: true, grid: { color: 'rgba(42,58,34,0.3)' }, ticks: { callback: v => v + '%' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// 9. MARGIN CHART
+new Chart(document.getElementById('marginChart'), {
+  type: 'bar',
+  data: {
+    labels: ['DTC (Direct)', 'Kiskereskedelmi', 'Disztribútor', 'Nagykereskedelmi'],
+    datasets: [
+      {
+        label: 'Bruttó árrés',
+        data: [65, 40, 38, 30],
+        backgroundColor: accent,
+        borderRadius: 6,
+        borderSkipped: false,
+      },
+      {
+        label: 'Nettó árrés',
+        data: [30, 15, 10, 8],
+        backgroundColor: accent3,
+        borderRadius: 6,
+        borderSkipped: false,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true } },
+      tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.raw + '%' } }
+    },
+    scales: {
+      y: { beginAtZero: true, grid: { color: 'rgba(42,58,34,0.3)' }, ticks: { callback: v => v + '%' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// ===== TABS =====
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.tab;
+    btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    btn.closest('.section').querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+  });
+});
+
+// ===== SCROLL REVEAL =====
+const revealEls = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      // Animate bar fills
+      entry.target.querySelectorAll('.bar-fill').forEach(bar => {
+        bar.style.width = bar.dataset.width;
+      });
+    }
+  });
+}, { threshold: 0.1 });
+revealEls.forEach(el => observer.observe(el));
+
+// ===== COUNT UP =====
+const countEls = document.querySelectorAll('.count-up');
+let counted = false;
+const countObserver = new IntersectionObserver((entries) => {
+  if (counted) return;
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      counted = true;
+      countEls.forEach(el => {
+        const target = parseInt(el.dataset.target);
+        let current = 0;
+        const step = target / 60;
+        const timer = setInterval(() => {
+          current += step;
+          if (current >= target) { current = target; clearInterval(timer); }
+          el.textContent = Math.round(current);
+        }, 25);
+      });
+    }
+  });
+}, { threshold: 0.5 });
+countObserver.observe(document.querySelector('.hero-stats'));
+
+// ===== NAV ACTIVE STATE =====
+const sections = document.querySelectorAll('.section[id]');
+const navLinks = document.querySelectorAll('.nav a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(section => {
+    const top = section.offsetTop - 100;
+    if (window.scrollY >= top) current = section.getAttribute('id');
+  });
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+    if (link.getAttribute('href') === '#' + current) link.classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>
